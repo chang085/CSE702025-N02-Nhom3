@@ -143,8 +143,6 @@ Bài viết này có thể còn một số thiếu sót, mong các bạn thông 
 
 Liên lạc của nhóm tôi:
 
-- Email 1: 22010511@st.phenikaa-uni.edu.vn
-- Email 2: 22010168@st.phenikaa-uni.edu.vn
-- Email 3: 22010085@st.phenikaa-uni.edu.vn
+- Email : 22010085@st.phenikaa-uni.edu.vn
 
 Xin chân thành cảm ơn!
