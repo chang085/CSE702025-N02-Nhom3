@@ -28,7 +28,7 @@ public class ControllerCauThu {
         DefaultTableModel filteredModel = new DefaultTableModel();
         // Định nghĩa tiêu đề cột cho bảng mới
         String[] columnNames = { "Name", "Nationality", "Gender", "Date of Birth", "Date of Joining", "Position",
-                "Matches", "Goals", "Agreed Salary", "Points from Last 5 Matches" };
+                "Matches", "Goals", "Agreed Salary", "Points from Last 5 Matches", "Team ID" };
 
         filteredModel.setColumnIdentifiers(columnNames);
 
@@ -97,8 +97,34 @@ public class ControllerCauThu {
         }
     }
 
-    public static void saveTableModelToFile(DefaultTableModel model, String filePath) {
+    public static void saveTableModelToFile(DefaultTableModel model, String filePath, int maDoi) {
+        List<String> otherTeamLines = new ArrayList<>();
+
+        // Đọc và giữ lại dòng của đội khác
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 11) {
+                    int teamId = Integer.parseInt(parts[10].trim());
+                    if (teamId != maDoi) {
+                        otherTeamLines.add(line);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            // File có thể chưa tồn tại, không sao cả
+        }
+
+        // Ghi lại: các dòng đội khác + dòng đội hiện tại từ model
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            // Ghi các dòng cũ (khác maDoi)
+            for (String line : otherTeamLines) {
+                writer.write(line);
+                writer.write("\n");
+            }
+
+            // Ghi dữ liệu đội hiện tại từ model
             for (int row = 0; row < model.getRowCount(); row++) {
                 for (int col = 0; col < model.getColumnCount(); col++) {
                     writer.write(model.getValueAt(row, col).toString());
@@ -107,10 +133,12 @@ public class ControllerCauThu {
                     }
                 }
 
+                // Thêm maDoi ở cuối
+                writer.write("," + maDoi);
                 writer.write("\n");
             }
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error writing data to file: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Lỗi khi ghi file: " + e.getMessage());
         }
     }
 
@@ -214,69 +242,69 @@ public class ControllerCauThu {
         }
     }
 
-    public static Object[][] loadData(Object[][] data) {
+    public static Object[][] loadData(int maDoi) {
+        List<Object[]> filteredData = new ArrayList<>();
+
         try {
             BufferedReader br = new BufferedReader(new FileReader("Data.csv"));
-            String line = br.readLine();
-            int rowCount = 0;
+            String line;
 
-            // Count the number of lines in the file to determine the array size
-            while (line != null) {
-                rowCount++;
-                line = br.readLine();
-            }
-
-            br.close();
-            br = new BufferedReader(new FileReader("Data.csv"));
-
-            // Initialize the data array with the determined size
-            data = new Object[rowCount][10];
-
-            int rowIndex = 0;
-
-            // Read data from the file and populate the array
             while ((line = br.readLine()) != null) {
                 String[] value = line.split(",");
-                for (int i = 0; i < value.length; i++) {
-                    data[rowIndex][i] = value[i];
+
+                // Kiểm tra nếu cột 11 tồn tại và bằng maDoi
+                if (value.length >= 11 && Integer.parseInt(value[10].trim()) == maDoi) {
+                    Object[] row = new Object[11];
+                    for (int i = 0; i < 11; i++) {
+                        row[i] = value[i];
+                    }
+                    filteredData.add(row);
                 }
-                rowIndex++;
             }
 
             br.close();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Lỗi khi đọc file: " + e.getMessage());
         }
+
+        // Chuyển List<Object[]> thành Object[][]
+        Object[][] data = new Object[filteredData.size()][11];
+        for (int i = 0; i < filteredData.size(); i++) {
+            data[i] = filteredData.get(i);
+        }
+
         return data;
     }
 
-    public static void in4(JTable table, DefaultTableModel model) {
+    public static void in4(JTable table, DefaultTableModel model, int maDoi) {
         int selectedRow = table.getSelectedRow();
         if (selectedRow != -1) {
-            // Lấy thông tin 
+            // Lấy thông tin
             String ten = model.getValueAt(selectedRow, 0).toString();
             String nuoc = model.getValueAt(selectedRow, 1).toString();
             String ns = model.getValueAt(selectedRow, 3).toString();
-            String join = model.getValueAt(selectedRow, 4).toString(); 
+            String join = model.getValueAt(selectedRow, 4).toString();
             String pos = model.getValueAt(selectedRow, 5).toString();
             String luongThoaThuanStr = model.getValueAt(selectedRow, 8).toString();
             String soTranThamGiaStr = model.getValueAt(selectedRow, 6).toString();
             String soBanThangStr = model.getValueAt(selectedRow, 7).toString();
+            String DoiStr = model.getValueAt(selectedRow, 10).toString();
 
             // Chuyển đổi sang kiểu dữ liệu số
-            
+
             Integer luongThoaThuan = Integer.parseInt(luongThoaThuanStr);
             int soLuotTranThamGia = Integer.parseInt(soTranThamGiaStr);
             int banThang = Integer.parseInt(soBanThangStr);
+            int Doi = Integer.parseInt(DoiStr);
 
-            // Tính toán lương và thưởng            
-           
+            // Tính toán lương và thưởng
+
             Integer thamNienn = Integer.parseInt(ControllerCauThu.getYearFromString(join, "d/M/yyyy"));
 
-            CauThu x = new CauThu(ten, nuoc, ns, thamNienn, pos, soLuotTranThamGia, banThang, luongThoaThuan);
+            CauThu x = new CauThu(ten, nuoc, ns, thamNienn, pos, soLuotTranThamGia, banThang, luongThoaThuan, Doi);
 
             // Hiển thị thông tin
-            JOptionPane.showMessageDialog(null, "Salary: " + x.tinhLuong() + "\nBonus: " +  x.tinhThuong(),
+            JOptionPane.showMessageDialog(null, "Salary: " + x.tinhLuong() + "\nBonus: " + x.tinhThuong(),
                     "Salary and Bonus Details", JOptionPane.INFORMATION_MESSAGE);
 
         } else {
@@ -286,9 +314,9 @@ public class ControllerCauThu {
         }
     }
 
-    public static void them5tran(JTable table, DefaultTableModel model) {
+    public static void them5tran(JTable table, DefaultTableModel model, int maDoi) {
         int selectedRow = table.getSelectedRow();
-        if (selectedRow != -1) {
+        if (selectedRow != -22) {
             String latestMatchScore = JOptionPane.showInputDialog("Enter the latest match score of the player:");
             List<String> arr = new ArrayList<>();
             for (int i = 1; i <= 10; i++) {
@@ -322,7 +350,7 @@ public class ControllerCauThu {
             model.setValueAt(updatedLastFiveMatchesScores, selectedRow, 9);
 
             // Save the updated data to the file
-            ControllerCauThu.saveTableModelToFile(model, "Data.csv");
+            ControllerCauThu.saveTableModelToFile(model, "Data.csv", maDoi);
 
             JOptionPane.showMessageDialog(null, "Successfully updated the new score!");
         } else {
@@ -346,7 +374,6 @@ public class ControllerCauThu {
             final JCheckBox salaryCheck = new JCheckBox("Agreed Salary");
             final JCheckBox lastFiveMatchesCheck = new JCheckBox("Points from Last 5 Matches");
 
-
             Object[] options = {
                     nameCheck, nationalityCheck, genderCheck,
                     birthDateCheck, joinDateCheck, positionCheck,
@@ -355,7 +382,6 @@ public class ControllerCauThu {
 
             int option = JOptionPane.showConfirmDialog(null, options, "Choose data fields to edit",
                     JOptionPane.OK_CANCEL_OPTION);
-
 
             if (option == JOptionPane.OK_OPTION) {
                 // Tạo form chỉnh sửa dựa trên lựa chọn
@@ -383,7 +409,7 @@ public class ControllerCauThu {
                 }
                 if (positionCheck.isSelected()) {
                     JComboBox<String> positionComboBox = new JComboBox<>(
-                            new String[] { "Forward", "Midfielder","Defender", "Goalkeeper" });
+                            new String[] { "Forward", "Midfielder", "Defender", "Goalkeeper" });
                     positionComboBox.setSelectedItem(table.getModel().getValueAt(selectedRow, 5));
                     fields.addAll(Arrays.asList("Playing Position:", positionComboBox));
                 }
@@ -403,7 +429,6 @@ public class ControllerCauThu {
                     fields.addAll(Arrays.asList("Points from Last 5 Matches:",
                             new JTextField((String) table.getModel().getValueAt(selectedRow, 9))));
                 }
-
 
                 // Hiển thị form chỉnh sửa
                 if (!fields.isEmpty()) {
@@ -574,7 +599,7 @@ public class ControllerCauThu {
             JComboBox<String> joinMonthComboBox, JComboBox<String> joinYearComboBox, JTextField matchField,
             JTextField goalField, JTextField salaryField, JComboBox<String> dayComboBox,
             JComboBox<String> monthComboBox, JComboBox<String> yearComboBox, DateValidator validator,
-            JTextField lastFiveMatchesField) {
+            JTextField lastFiveMatchesField, int maDoi) {
         boolean Check = false;
         while (!Check) {
             Check = true;
@@ -651,12 +676,13 @@ public class ControllerCauThu {
                         model.addRow(
                                 new Object[] { name, nationality, gender, birth, joinD, selectedPosition, sotran,
                                         soBanThang, Luong, lastFiveMatchesScores });
-                        ControllerCauThu.saveTableModelToFile(model, "Data.csv");
+                        ControllerCauThu.saveTableModelToFile(model, "Data.csv", maDoi);
                     }
 
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null,
-                            "The number of matches played, goals scored, and salary must be integers. Please re-enter.", "Data entry error.",
+                            "The number of matches played, goals scored, and salary must be integers. Please re-enter.",
+                            "Data entry error.",
                             JOptionPane.ERROR_MESSAGE);
                 } catch (IllegalArgumentException ex) {
                     JOptionPane.showMessageDialog(null,
@@ -666,4 +692,5 @@ public class ControllerCauThu {
             }
         }
     }
+
 }
