@@ -32,25 +32,25 @@ public class Menu extends JFrame {
         JButton btnBack = new JButton("Back"); // Tạo nút "Back"
 
         // Customize buttons
-        btnCauThu.setBackground(new Color(100, 100, 255)); 
+        btnCauThu.setBackground(new Color(100, 100, 255));
         btnCauThu.setForeground(Color.WHITE);
         btnCauThu.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    ViewCauThu.view();
-                    dispose();
-                }
-            });
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TeamSelection.view();
+                dispose();
+            }
+        });
 
-        btnHuanLuyenVien.setBackground(new Color(255, 100, 100)); 
+        btnHuanLuyenVien.setBackground(new Color(255, 100, 100));
         btnHuanLuyenVien.setForeground(Color.WHITE);
         btnHuanLuyenVien.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    ViewHuanLuyenVien.view();   
-                    dispose();
-                }
-            });
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ViewHuanLuyenVien.view();
+                dispose();
+            }
+        });
 
         btnBack.setBackground(new Color(100, 100, 100)); // Đặt màu cho nút "Back"
         btnBack.setForeground(Color.WHITE);
