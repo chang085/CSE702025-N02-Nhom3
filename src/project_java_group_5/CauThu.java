@@ -5,18 +5,19 @@ public class CauThu extends NhanVien {
 	private int soLuotTranThamGia;
 	private int banThang;
 	private Integer luongThoaThuan;
-
+	private int maDoi;
 	// constructors:
 	public CauThu() {
 	}
 
 	public CauThu(String ten, String quocTich, String ngaySinh, Integer thamNien,
-			String vaitro, int soLuotTranThamGia, int banThang, Integer luongThoaThuan) {
+			String vaitro, int soLuotTranThamGia, int banThang, Integer luongThoaThuan, int maDoi) {
 		super(ten, quocTich, ngaySinh, thamNien, vaitro);
 		
 		this.soLuotTranThamGia = soLuotTranThamGia;
 		this.banThang = banThang;
 		this.luongThoaThuan = luongThoaThuan;
+		this.maDoi =maDoi;
 	}
 
 	public int getSoLuotTranThamGia() {
@@ -41,6 +42,14 @@ public class CauThu extends NhanVien {
 
 	public void setLuongThoaThuan(Integer luongThoaThuan) {
 		this.luongThoaThuan = luongThoaThuan;
+	}
+	
+	public int getmaDoi() {
+		return maDoi;
+	}
+
+	public void setmaDoi(int maDoi) {
+		this.maDoi = maDoi;
 	}
 
 	// methods:
